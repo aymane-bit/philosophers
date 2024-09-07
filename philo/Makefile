@@ -4,6 +4,7 @@ NAME = philo
 
 SRC = philo.c \
 	  utils1.c \
+	  data_init.c \
 
 OBJ = $(SRC:.c=.o)
 
