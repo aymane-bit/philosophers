@@ -6,7 +6,7 @@
 /*   By: akajjou <akajjou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/01 23:00:55 by akajjou           #+#    #+#             */
-/*   Updated: 2024/09/07 12:24:42 by akajjou          ###   ########.fr       */
+/*   Updated: 2024/09/13 23:09:43 by akajjou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,23 @@
 #define MAGENTA "\033[35m"
 #define CYAN    "\033[36m"
 
+typedef enum e_code
+{
+	LOCK,
+	UNLOCK,
+	DESTROY,
+	JOIN,
+	INIT,
+	DETACH,
+	CREAT,
+}			t_code;
+
 typedef struct s_table  t_table;
+typedef pthread_mutex_t t_mutex;
 
 typedef struct s_fork
 {
-	pthread_mutex_t		fork;
+	t_mutex		fork;
 	int 				fork_id;
 }					t_fork;
 
@@ -72,6 +84,12 @@ int		ft_atoi(const char *str);
 /*data intialization*/
 bool	table_init(int ac, char **av, t_table **table);
 bool	philo_init(t_table *table);
+
+/*thread_fct*/
+void	mutex_handler(t_mutex *mutex, t_code code);
+void	thread_handler(pthread_t *thread, void *(*start)(void *)
+						, void *arg, t_code code);
+
 
 
 #endif

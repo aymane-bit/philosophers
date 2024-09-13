@@ -6,7 +6,7 @@
 /*   By: akajjou <akajjou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/07 12:16:25 by akajjou           #+#    #+#             */
-/*   Updated: 2024/09/07 12:26:21 by akajjou          ###   ########.fr       */
+/*   Updated: 2024/09/13 23:18:18 by akajjou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,52 @@ bool	table_init(int ac, char **av, t_table **table)
     return (true);
 }
 
+void    forks_assigner(t_philo *philo, t_fork *forks, int i)
+{
+    if (i == 0)
+    {
+        philo->left_fork = &forks[philo->table->num_philo - 1];
+        philo->right_fork = &forks[i];
+    }
+    else
+    {
+        philo->left_fork = &forks[i - 1];
+        philo->right_fork = &forks[i];
+    }
+}
+
+void    philo_init_helper(t_table *table)
+{
+    int i;
+    t_philo *philo;
+
+    i = 0;
+    while (i < table->num_philo)
+    {
+        philo = table->philos + i;
+        philo->id = i + 1;
+        philo->meal_count = 0;
+        philo->full = false;
+        philo->table = table;
+        forks_assigner(philo, table->forks, i);
+    i++;
+    }
+    
+}
+
 bool	philo_init(t_table *table)
 {
+    int i;
+
+    i = 0;
     table->philos = malloc(sizeof(t_philo) * table->num_philo);
     table->forks = malloc(sizeof(t_fork) * table->num_philo);
+    while (i < table->num_philo)
+    {
+        mutex_handler(&table->forks[i].fork, INIT);
+        table->forks[i].fork_id = i;
+        i++;
+    }
+    philo_init_helper(table);
+    return (true);
 }
