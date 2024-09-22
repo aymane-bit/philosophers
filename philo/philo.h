@@ -56,8 +56,8 @@ typedef struct s_philo
 	int			meal_count;
 	bool		full;
 	int 		last_meal_tm;
-	t_fork		*left_fork;
-	t_fork		*right_fork;
+	t_fork		*first_fork;
+	t_fork		*last_fork;
 	pthread_t	thread_id;
 	t_table		*table;
 }					t_philo;

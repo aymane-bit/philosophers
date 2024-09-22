@@ -29,18 +29,23 @@ bool	table_init(int ac, char **av, t_table **table)
     return (true);
 }
 
-void    forks_assigner(t_philo *philo, t_fork *forks, int i)
+void    forks_assigner(t_philo *philo, t_fork *forks, int index)
 {
-    if (i == 0)
+    int philo_nbr;
+
+    philo_nbr = philo->table->num_philo;
+
+    if (philo->id % 2 == 0)
     {
-        philo->left_fork = &forks[philo->table->num_philo - 1];
-        philo->right_fork = &forks[i];
+        philo->first_fork = forks + index;
+        philo->last_fork = forks + ((index + 1) % philo_nbr);
     }
     else
     {
-        philo->left_fork = &forks[i - 1];
-        philo->right_fork = &forks[i];
+        philo->first_fork = forks + ((index + 1) % philo_nbr);
+        philo->last_fork = forks + index;
     }
+
 }
 
 void    philo_init_helper(t_table *table)
@@ -59,7 +64,6 @@ void    philo_init_helper(t_table *table)
         forks_assigner(philo, table->forks, i);
     i++;
     }
-    
 }
 
 bool	philo_init(t_table *table)
@@ -71,7 +75,7 @@ bool	philo_init(t_table *table)
     table->forks = malloc(sizeof(t_fork) * table->num_philo);
     while (i < table->num_philo)
     {
-        mutex_handler(&table->forks[i].fork, INIT);
+        mutex_handler(&table->forks[i].fork, INIT); // 		pthread_mutex_init(mutex, NULL);
         table->forks[i].fork_id = i;
         i++;
     }
