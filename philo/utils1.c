@@ -6,7 +6,7 @@
 /*   By: akajjou <akajjou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/02 00:49:53 by akajjou           #+#    #+#             */
-/*   Updated: 2024/09/13 23:08:57 by akajjou          ###   ########.fr       */
+/*   Updated: 2024/09/22 18:30:13 by akajjou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,3 +76,20 @@ void	mutex_handler(t_mutex *mutex, t_code code)
 	else if (code == UNLOCK)
 		pthread_mutex_unlock(mutex);
 }
+
+long    get_time(t_time time)
+{
+    struct timeval  tv;
+    long            time_in_mill;
+
+    gettimeofday(&tv, NULL);
+    time_in_mill = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
+    if (time == MILLISEC)
+        return (time_in_mill);
+    else if (time == USEC)
+        return (time_in_mill * 1000);
+    else if (time == SEC)
+        return (time_in_mill / 1000);
+    return (0);
+}
+

@@ -75,7 +75,7 @@ bool	philo_init(t_table *table)
     table->forks = malloc(sizeof(t_fork) * table->num_philo);
     while (i < table->num_philo)
     {
-        mutex_handler(&table->forks[i].fork, INIT); // 		pthread_mutex_init(mutex, NULL);
+        mutex_handler(&table->forks[i].fork, INIT);
         table->forks[i].fork_id = i;
         i++;
     }
