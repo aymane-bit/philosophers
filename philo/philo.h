@@ -6,7 +6,7 @@
 /*   By: akajjou <akajjou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/01 23:00:55 by akajjou           #+#    #+#             */
-/*   Updated: 2024/09/22 18:29:38 by akajjou          ###   ########.fr       */
+/*   Updated: 2024/09/30 17:35:38 by akajjou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <pthread.h>
 # include <stdio.h>
+# include <time.h>
 # include <unistd.h>
 # include <stdlib.h>
 # include <sys/time.h>
@@ -33,9 +34,19 @@
 typedef enum e_time
 {
 	MILLISEC,
-	USEC,
+	MICROSEC,
 	SEC,
 }			t_time;
+
+typedef enum e_philo_stat
+{
+	EAT,
+	SLEEP,
+	THINK,
+	DIE,
+	FIRST_FORK,
+	LAST_FORK,
+}			t_philo_stat;
 
 typedef enum e_code
 {
@@ -62,7 +73,8 @@ typedef struct s_philo
 	int			id;
 	int			meal_count;
 	bool		full;
-	int 		last_meal_tm;
+	long 		last_meal_tm;
+	t_mutex		philo_mutex;
 	t_fork		*first_fork;
 	t_fork		*last_fork;
 	pthread_t	thread_id;
@@ -72,34 +84,52 @@ typedef struct s_philo
 
 typedef struct s_table
 {
-	int			num_philo;
-	int			time_to_die;
-	int			time_to_eat;
-	int			time_to_sleep;
-	int			max_meal;
-	long		start_sm;
-	bool		end_sm;
-	t_fork		*forks;
-	t_philo		*philos;
+	long			num_philo;
+	long			time_to_die;
+	long			time_to_eat;
+	long			time_to_sleep;
+	long			max_meal;
+	long			start_sm;
+	long			all_philo_sync; // 0
+	bool			all_thread_sync;
+	bool			end_sm;
+	pthread_t 		monitor;
+	t_mutex			write_mutex;
+	t_mutex			avoid_race; // table_mutex
+	t_fork			*forks;
+	t_philo			*philos;
 }					t_table;
 
 
 bool	ft_isdigit(char *str);
-int		ft_atoi(const char *str);
+long		ft_atoi(const char *str);
 
 
 /*data intialization*/
 bool	table_init(int ac, char **av, t_table **table);
 bool	philo_init(t_table *table);
+bool	input_parsing(int ac, char **av);
 
 /*thread_fct*/
 void	mutex_handler(t_mutex *mutex, t_code code);
 void	thread_handler(pthread_t *thread, void *(*start)(void *)
 						, void *arg, t_code code);
+void    wait_philos(t_table *table);
+void	sync_threads(t_philo *philos, int philo_nbr , t_table *table);
+bool    simu_end(t_table *table);
+void	*philo_work(void *arg);
+void 		write_status(t_philo_stat status, t_philo *philo);
+bool	philo_died(t_philo *philo);
 
 /*time_fct*/
 long	get_time(t_time time);
+void		sleep_philo(long usec, t_table *table);
 
-
+/*getter_setters_fct*/
+void	set_bool(t_mutex *mutex, bool *dest, bool value);
+bool	get_bool(t_mutex *mutex, bool *src);
+long	get_long(t_mutex *mutex, long *value);
+void	set_long(t_mutex *mutex, long *dest, long value);
+long    get_time(t_time time);
 
 #endif

@@ -6,62 +6,46 @@
 /*   By: akajjou <akajjou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/01 23:03:31 by akajjou           #+#    #+#             */
-/*   Updated: 2024/09/24 17:25:17 by akajjou          ###   ########.fr       */
+/*   Updated: 2024/10/01 16:35:18 by akajjou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-bool	input_parsing(int ac, char **av)
+bool	start_monitor(t_mutex *mutex, long *all_philo_sync, long philo_nbr)
 {
+	bool ret;
+
+	ret = false;
+	mutex_handler(mutex, LOCK);
+	if (*all_philo_sync == philo_nbr)
+		ret = true;
+	mutex_handler(mutex, UNLOCK);
+	return (ret);
+}
+
+void	*monitor_fct(void *arg)
+{
+	t_table *table;
 	int i;
 
-	i = 1;
-	if (ac < 5 || ac > 6)
-		return (printf("Error: Wrong number of arguments\n"),false);
-	if (ft_atoi(av[i]) < 1)
-		return (printf("Error: Number of philosophers must be greater than 0\n"),false);
-	while (av[i])
+	table = (t_table *)arg;
+	while (!start_monitor(&table->avoid_race , &table->all_philo_sync, table->num_philo))
+		;
+	while (!simu_end(table))
 	{
-		if (ft_isdigit(av[i]) == false)
-			return (printf("Error: Argument %s is not valide\n", av[i]),false);
-	i++;
+		i = 0;
+		while (i < table->num_philo && !simu_end(table))
+		{
+			if (philo_died(table->philos + i))
+			{
+				set_bool(&table->avoid_race, &table->end_sm, true);
+				write_status(DIE, table->philos + i);
+			}
+		}
+		i++;
 	}
-	return (true);
-}
-
-
-void	sync_threads(t_philo *philos, int philo_nbr , t_table *table)
-{
-	int i;
-
-	i = 0;
-	// while (i < philo_nbr)
-	// {
-	// 	thread_handler(&philos[i].thread_id, NULL, NULL, JOIN);
-	// 	i++;
-	// }
-	table->start_sm = get_time(MILLISEC);
-	printf("Simulation started at %ld\n", table->start_sm);
-	
-}
-
-// void philo_routine(void *arg)
-// {
-// 	t_philo *philo;
-
-// 	philo = (t_philo *)arg;
-// 	while (philo->table->end_sm == false)
-// 	{
-// 		philo_thinking(philo);
-// 		philo_eating(philo);
-// 		philo_sleeping(philo);
-// 	}
-// }
-
-void	*philo_work(void *arg)
-{
-	
+	return (NULL);
 }
 
 bool	pilosophers_start(t_table *table)
@@ -77,8 +61,18 @@ bool	pilosophers_start(t_table *table)
 		thread_handler(&table->philos[i].thread_id, philo_work, &table->philos[i], CREAT);
 		i++;
 	}
-	// sync_threads(table->philos, philo_nbr, table);
-	
+
+
+	thread_handler(&table->monitor, monitor_fct, table, CREAT);
+	table->start_sm = get_time(MILLISEC);
+
+	set_bool(&table->avoid_race, &table->all_thread_sync, true);
+
+	sync_threads(table->philos, philo_nbr, table);
+
+	set_bool(&table->write_mutex, &table->end_sm, true); 
+
+	return (true);
 }
 
 bool	data_init(int ac, char **av, t_table **table)
@@ -89,6 +83,8 @@ bool	data_init(int ac, char **av, t_table **table)
 		return (false);
 	return (true);
 }
+
+
 
 int		main(int ac, char **av)
 {
@@ -102,3 +98,4 @@ int		main(int ac, char **av)
 		return (1);
 	return (0);
 }
+

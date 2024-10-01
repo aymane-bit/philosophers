@@ -6,7 +6,7 @@
 /*   By: akajjou <akajjou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/07 12:16:25 by akajjou           #+#    #+#             */
-/*   Updated: 2024/09/13 23:18:18 by akajjou          ###   ########.fr       */
+/*   Updated: 2024/09/30 17:46:01 by akajjou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@ bool	table_init(int ac, char **av, t_table **table)
     (*table)->time_to_die = ft_atoi(av[2]) * 1e3;
     (*table)->time_to_eat = ft_atoi(av[3]) * 1e3;
     (*table)->time_to_sleep = ft_atoi(av[4]) * 1e3;
+    (*table)->all_philo_sync = 0;
+    (*table)->all_thread_sync = false;
+    mutex_handler(&(*table)->avoid_race, INIT);
+    mutex_handler(&(*table)->write_mutex, INIT);
     (*table)->end_sm = false;
     if (ac == 6)
         (*table)->max_meal = ft_atoi(av[5]);
@@ -34,16 +38,13 @@ void    forks_assigner(t_philo *philo, t_fork *forks, int index)
     int philo_nbr;
 
     philo_nbr = philo->table->num_philo;
-
+    
+    philo->first_fork = &forks[(index + 1) % philo_nbr];
+    philo->last_fork = &forks[index];
     if (philo->id % 2 == 0)
     {
-        philo->first_fork = forks + index;
-        philo->last_fork = forks + ((index + 1) % philo_nbr);
-    }
-    else
-    {
-        philo->first_fork = forks + ((index + 1) % philo_nbr);
-        philo->last_fork = forks + index;
+        philo->first_fork = &forks[index];
+        philo->last_fork = &forks[(index + 1) % philo_nbr];
     }
 
 }
@@ -61,6 +62,7 @@ void    philo_init_helper(t_table *table)
         philo->meal_count = 0;
         philo->full = false;
         philo->table = table;
+        mutex_handler(&philo->philo_mutex, INIT);
         forks_assigner(philo, table->forks, i);
     i++;
     }

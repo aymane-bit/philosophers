@@ -6,7 +6,7 @@
 /*   By: akajjou <akajjou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/02 00:49:53 by akajjou           #+#    #+#             */
-/*   Updated: 2024/09/22 18:30:13 by akajjou          ###   ########.fr       */
+/*   Updated: 2024/09/27 21:06:14 by akajjou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@ bool	ft_isdigit(char *str)
 	return (true);
 }
 
-int	ft_atoi(const char *str)
+long	ft_atoi(const char *str)
 {
-	int			sign;
-	int			result;
+	long			sign;
+	long			result;
 
 	sign = 1;
 	result = 0;
@@ -80,16 +80,14 @@ void	mutex_handler(t_mutex *mutex, t_code code)
 long    get_time(t_time time)
 {
     struct timeval  tv;
-    long            time_in_mill;
 
     gettimeofday(&tv, NULL);
-    time_in_mill = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
     if (time == MILLISEC)
-        return (time_in_mill);
-    else if (time == USEC)
-        return (time_in_mill * 1000);
-    else if (time == SEC)
-        return (time_in_mill / 1000);
+		return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+	else if (time == MICROSEC)
+		return ((tv.tv_sec * 1000000) + tv.tv_usec);
+	else if (time == SEC)
+		return (tv.tv_sec + (tv.tv_usec / 1000000));
     return (0);
 }
 
