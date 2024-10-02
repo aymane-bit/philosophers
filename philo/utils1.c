@@ -6,7 +6,7 @@
 /*   By: akajjou <akajjou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/02 00:49:53 by akajjou           #+#    #+#             */
-/*   Updated: 2024/09/27 21:06:14 by akajjou          ###   ########.fr       */
+/*   Updated: 2024/10/02 02:35:34 by akajjou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 bool	ft_isdigit(char *str)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (str[i])
@@ -28,8 +28,8 @@ bool	ft_isdigit(char *str)
 
 long	ft_atoi(const char *str)
 {
-	long			sign;
-	long			result;
+	long	sign;
+	long	result;
 
 	sign = 1;
 	result = 0;
@@ -48,14 +48,9 @@ long	ft_atoi(const char *str)
 	}
 	return (result * sign);
 }
-/*pthread fct*/
-// init
-// destroy
-// lock 
-//unlcok
 
-void	thread_handler(pthread_t *thread, void *(*start)(void *)
-						, void *arg, t_code code)
+void	thread_handler(pthread_t *thread, void *(*start)(void *), void *arg,
+		t_code code)
 {
 	if (code == CREAT)
 		pthread_create(thread, NULL, start, arg);
@@ -77,17 +72,16 @@ void	mutex_handler(t_mutex *mutex, t_code code)
 		pthread_mutex_unlock(mutex);
 }
 
-long    get_time(t_time time)
+long	get_time(t_time time)
 {
-    struct timeval  tv;
+	struct timeval	tv;
 
-    gettimeofday(&tv, NULL);
-    if (time == MILLISEC)
+	gettimeofday(&tv, NULL);
+	if (time == MILLISEC)
 		return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 	else if (time == MICROSEC)
 		return ((tv.tv_sec * 1000000) + tv.tv_usec);
 	else if (time == SEC)
 		return (tv.tv_sec + (tv.tv_usec / 1000000));
-    return (0);
+	return (0);
 }
-
